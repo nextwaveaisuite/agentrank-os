@@ -1,5 +1,5 @@
 [build]
-  command = "npm run build"
+  command = "rm -f package-lock.json pnpm-lock.yaml && npm install && npm run build"
   publish = "dist"
 
 [build.environment]
