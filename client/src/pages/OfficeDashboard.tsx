@@ -65,7 +65,7 @@ export default function OfficeDashboard() {
   const [loadingBriefing, setLoadingBriefing] = useState(true);
 
   useEffect(() => {
-    fetch("/api/briefing")
+    fetch("/.netlify/functions/briefing")
       .then(r => r.json())
       .then(data => {
         if (data.success) {
@@ -84,7 +84,7 @@ export default function OfficeDashboard() {
     setMessage("");
     setIsSending(true);
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch("/.netlify/functions/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agentRole: chatAgent?.role, message: userMsg }),
@@ -125,7 +125,12 @@ export default function OfficeDashboard() {
                 <div style={{ maxWidth: "80%", padding: "10px 14px", borderRadius: 12, background: m.role === "user" ? chatAgent.color : "#0F172A", color: "#F8FAFC", fontSize: 14, lineHeight: 1.6, border: m.role === "assistant" ? "1px solid #334155" : "none", whiteSpace: "pre-wrap" }}>{m.text}</div>
               </div>
             ))}
-            {isSending && <div style={{ display: "flex", gap: 6, padding: "8px 0", alignItems: "center" }}><div style={{ width: 6, height: 6, borderRadius: "50%", background: chatAgent.color, opacity: 0.6 }} /><span style={{ fontSize: 13, color: "#475569" }}>{chatAgent.name} is thinking...</span></div>}
+            {isSending && (
+              <div style={{ display: "flex", gap: 6, padding: "8px 0", alignItems: "center" }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: chatAgent.color, opacity: 0.6 }} />
+                <span style={{ fontSize: 13, color: "#475569" }}>{chatAgent.name} is thinking...</span>
+              </div>
+            )}
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <input value={message} onChange={e => setMessage(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()} placeholder={"Message " + chatAgent.name + "..."} style={{ flex: 1, padding: "12px 16px", border: "1px solid #334155", borderRadius: 8, fontSize: 14, background: "#1E293B", color: "#F8FAFC", outline: "none" }} />
@@ -140,7 +145,6 @@ export default function OfficeDashboard() {
   return (
     <div style={{ minHeight: "100vh", background: "#0F172A", color: "#F8FAFC", fontFamily: "system-ui, sans-serif" }}>
       <Header />
-
       <div style={{ textAlign: "center", padding: "4rem 1rem 2rem" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 14px", background: "#1E293B", borderRadius: 999, border: "1px solid #334155", fontSize: 12, color: "#3B82F6", marginBottom: 20, fontWeight: 500 }}>
           <Zap size={12} /> AI-Powered Lead Generation Office
