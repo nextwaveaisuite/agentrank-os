@@ -1,9 +1,19 @@
 [build]
-  command = "rm -f package-lock.json pnpm-lock.yaml && npm install && npm run build"
+  command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["netlify/functions/lib/**"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
