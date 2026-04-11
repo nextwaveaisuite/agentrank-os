@@ -4,6 +4,7 @@ import Campaigns from "./pages/Campaigns";
 import Leads from "./pages/Leads";
 import Emails from "./pages/Emails";
 import CRM from "./pages/CRM";
+import PageBuilder from "./pages/PageBuilder";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
