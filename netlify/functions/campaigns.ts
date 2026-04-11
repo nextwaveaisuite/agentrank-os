@@ -14,6 +14,11 @@ export const handler: Handler = async (event) => {
       const rows = await query(`INSERT INTO campaigns (name, description, "targetIndustry", "targetLocation", "targetCompanySize", offer, status, "createdAt", "updatedAt") VALUES ($1,$2,$3,$4,$5,$6,'active',NOW(),NOW()) RETURNING *`, [name, description, targetIndustry, targetLocation, targetCompanySize, offer]);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true, campaign: rows[0] }) };
     }
+    if (event.httpMethod === "PATCH") {
+      const { campaignId, status } = JSON.parse(event.body ?? "{}");
+      await query(`UPDATE campaigns SET status=$1, "updatedAt"=NOW() WHERE id=$2`, [status, campaignId]);
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    }
     return { statusCode: 405, headers, body: JSON.stringify({ error: "Method not allowed" }) };
   } catch (e: any) {
     return { statusCode: 500, headers, body: JSON.stringify({ success: false, error: e.message }) };
