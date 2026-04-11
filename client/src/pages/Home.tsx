@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
-import { Search, PenLine, Send, Filter, PhoneCall, BarChart3, ChevronRight, Rocket, Mail, Users, Zap, Shield, TrendingUp } from "lucide-react";
+import { Search, PenLine, Send, Filter, PhoneCall, BarChart3, ChevronRight, Rocket, Mail, Users, Zap, Shield, TrendingUp, FolderOpen } from "lucide-react";
 
 const AGENTS = [
   { role: "researcher", name: "Alex", label: "Researcher", icon: Search, color: "#3B82F6", task: "Finds leads overnight" },
@@ -67,7 +67,7 @@ export default function Home() {
         <span style={{ fontWeight: 700, fontSize: 18, color: "#F8FAFC" }}>AgentRank OS</span>
       </a></Link>
       <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        {["About", "Pricing", "Contact"].map(i => (
+        {["About", "Pricing", "Contact", "CRM"].map(i => (
           <a key={i} href="#" style={{ color: "#94A3B8", fontSize: 14, textDecoration: "none", padding: "8px 14px" }}>{i}</a>
         ))}
         <Link href="/campaigns/new"><a style={{ ...bp, padding: "8px 16px", marginLeft: 8 }}><Rocket size={14} /> Launch</a></Link>
@@ -191,6 +191,7 @@ export default function Home() {
           <Link href="/campaigns/new"><a style={bp}><Rocket size={14} /> Launch campaign</a></Link>
           <Link href="/leads"><a style={bs}><Users size={14} /> View leads</a></Link>
           <Link href="/email-approval"><a style={bs}><Mail size={14} /> Email approval</a></Link>
+          <Link href="/crm"><a style={bs}><FolderOpen size={14} /> CRM & Archives</a></Link>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
