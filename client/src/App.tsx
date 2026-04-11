@@ -15,6 +15,7 @@ export default function App() {
       <Route path="/leads" component={Leads} />
       <Route path="/email-approval" component={Emails} />
       <Route path="/crm" component={CRM} />
+      <Route path="/page-builder" component={PageBuilder} />
       <Route component={NotFound} />
     </Switch>
   );
