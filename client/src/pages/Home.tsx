@@ -192,6 +192,7 @@ export default function Home() {
           <Link href="/leads"><a style={bs}><Users size={14} /> View leads</a></Link>
           <Link href="/email-approval"><a style={bs}><Mail size={14} /> Email approval</a></Link>
           <Link href="/crm"><a style={bs}><FolderOpen size={14} /> CRM & Archives</a></Link>
+          <Link href="/page-builder"><a style={bs}><Zap size={14} /> Page Builder</a></Link>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
