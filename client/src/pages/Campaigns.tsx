@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Briefcase, TrendingUp, ChevronRight, Zap } from "lucide-react";
+import { Briefcase, TrendingUp, ChevronRight, Zap, Plus } from "lucide-react";
 
 const PLATFORMS = [
   "ClickBank",
@@ -46,9 +46,13 @@ export default function Campaigns() {
   const [offer, setOffer] = useState("");
 
   const [platform, setPlatform] = useState("");
+  const [customPlatform, setCustomPlatform] = useState("");
+  const [showCustomPlatform, setShowCustomPlatform] = useState(false);
   const [niche, setNiche] = useState("");
   const [customNiche, setCustomNiche] = useState("");
   const [affiliateUrl, setAffiliateUrl] = useState("");
+  const [customAffiliateUrl, setCustomAffiliateUrl] = useState("");
+  const [showCustomOffer, setShowCustomOffer] = useState(false);
 
   const [name, setName] = useState("");
   const [autoResearch, setAutoResearch] = useState(true);
@@ -58,6 +62,9 @@ export default function Campaigns() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
+  const finalPlatform = showCustomPlatform ? customPlatform : platform;
+  const finalAffiliateUrl = showCustomOffer ? customAffiliateUrl : affiliateUrl;
+
   const inp = { display: "block", width: "100%", padding: "10px 14px", borderRadius: 8, border: "1.5px solid #334155", fontSize: 14, background: "#1E293B", color: "#F8FAFC", marginBottom: 12, boxSizing: "border-box" } as const;
   const card = { background: "#1E293B", border: "1px solid #334155", borderRadius: 12, padding: 20 } as const;
 
@@ -66,7 +73,7 @@ export default function Campaigns() {
     setSaving(true);
     const finalIndustry = industry === "Custom (enter below)" ? customIndustry : industry;
     const finalNiche = niche === "Custom (enter below)" ? customNiche : niche;
-    const autoName = name || (mode === "business" ? `${finalIndustry} campaign` : `${finalNiche} — ${platform}`);
+    const autoName = name || (mode === "business" ? `${finalIndustry} campaign` : `${finalNiche} — ${finalPlatform}`);
     try {
       const res = await fetch("/.netlify/functions/campaigns", {
         method: "POST",
@@ -75,10 +82,10 @@ export default function Campaigns() {
           name: autoName,
           target_industry: mode === "business" ? finalIndustry : finalNiche,
           target_location: mode === "business" ? location2 : "Global",
-          offer: mode === "business" ? offer : affiliateUrl,
+          offer: mode === "business" ? offer : finalAffiliateUrl,
           mode,
           niche: mode === "affiliate" ? finalNiche : null,
-          affiliate_url: mode === "affiliate" ? affiliateUrl : null,
+          affiliate_url: mode === "affiliate" ? finalAffiliateUrl : null,
           auto_research: autoResearch,
           auto_write: autoWrite,
           auto_outreach: autoOutreach,
@@ -98,14 +105,14 @@ export default function Campaigns() {
           campaignId: d.campaign.id,
           mode,
           niche: finalNiche,
-          platform,
+          platform: finalPlatform,
           location: mode === "business" ? location2 : "Global",
           industry: mode === "business" ? finalIndustry : finalNiche,
         }),
       });
       const researchData = await researchRes.json();
       if (!researchData.success) {
-        setError("Campaign created but Alex could not find leads. Try again from Leads page.");
+        setError("Campaign created but Alex could not find leads. Try again.");
       }
       setLocation("/leads");
     } catch {
@@ -159,7 +166,7 @@ export default function Campaigns() {
             {mode === "affiliate" && (
               <div style={{ background: "#052e16", border: "1px solid #166534", borderRadius: 10, padding: "12px 16px", marginBottom: 20 }}>
                 <p style={{ margin: 0, fontSize: 13, color: "#86efac", lineHeight: 1.6 }}>
-                  <strong>Affiliate mode</strong> — Alex finds people who are already buying products on ClickBank, WarriorPlus and JVZoo in your niche. Sam sends them a personalised message pointing to your offer link. Fully automated.
+                  <strong>Affiliate mode</strong> — Alex finds people already buying on ClickBank, WarriorPlus and JVZoo in your niche. Sam sends them a personalised message with your link. Fully automated.
                 </p>
               </div>
             )}
@@ -195,15 +202,23 @@ export default function Campaigns() {
           <div>
             <p style={{ color: "#94A3B8", marginBottom: 20, fontSize: 15 }}>Tell Alex where to find your buyers.</p>
 
-            <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>Platform</label>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+            {/* Platform selector */}
+            <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 8 }}>Platform</label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 10 }}>
               {PLATFORMS.map(p => (
-                <div key={p} onClick={() => setPlatform(p)} style={{ padding: "10px 8px", borderRadius: 8, border: `2px solid ${platform === p ? "#10B981" : "#334155"}`, background: platform === p ? "#052e16" : "#1E293B", cursor: "pointer", textAlign: "center", fontSize: 13, fontWeight: 600, color: platform === p ? "#10B981" : "#64748B" }}>
+                <div key={p} onClick={() => { setPlatform(p); setShowCustomPlatform(false); }} style={{ padding: "10px 8px", borderRadius: 8, border: `2px solid ${platform === p && !showCustomPlatform ? "#10B981" : "#334155"}`, background: platform === p && !showCustomPlatform ? "#052e16" : "#1E293B", cursor: "pointer", textAlign: "center", fontSize: 13, fontWeight: 600, color: platform === p && !showCustomPlatform ? "#10B981" : "#64748B" }}>
                   {p}
                 </div>
               ))}
+              <div onClick={() => { setShowCustomPlatform(true); setPlatform(""); }} style={{ padding: "10px 8px", borderRadius: 8, border: `2px solid ${showCustomPlatform ? "#F59E0B" : "#334155"}`, background: showCustomPlatform ? "#1c1000" : "#1E293B", cursor: "pointer", textAlign: "center", fontSize: 13, fontWeight: 600, color: showCustomPlatform ? "#F59E0B" : "#64748B", display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                <Plus size={13} /> My Platform
+              </div>
             </div>
+            {showCustomPlatform && (
+              <input value={customPlatform} onChange={e => setCustomPlatform(e.target.value)} placeholder="Enter your platform name..." style={{ ...inp, border: "1.5px solid #F59E0B" }} />
+            )}
 
+            {/* Niche */}
             <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>Niche</label>
             <select value={niche} onChange={e => setNiche(e.target.value)} style={{ ...inp }}>
               <option value="">Select niche...</option>
@@ -213,13 +228,30 @@ export default function Campaigns() {
               <input value={customNiche} onChange={e => setCustomNiche(e.target.value)} placeholder="Type your niche..." style={inp} />
             )}
 
+            {/* Affiliate URL */}
             <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>Your affiliate offer URL</label>
             <input value={affiliateUrl} onChange={e => setAffiliateUrl(e.target.value)} placeholder="https://hop.clickbank.net/yourlink" style={inp} />
-            <p style={{ fontSize: 12, color: "#475569", marginBottom: 16 }}>Alex will find proven buyers on {platform || "the platform"} and Sam will message them with your link.</p>
+
+            {/* Custom personal offer */}
+            <div onClick={() => setShowCustomOffer(!showCustomOffer)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", marginBottom: 12, padding: "10px 14px", borderRadius: 8, border: `1.5px solid ${showCustomOffer ? "#8B5CF6" : "#334155"}`, background: showCustomOffer ? "#1a0a2e" : "#1E293B" }}>
+              <Plus size={15} style={{ color: showCustomOffer ? "#8B5CF6" : "#64748B" }} />
+              <span style={{ fontSize: 14, fontWeight: 600, color: showCustomOffer ? "#8B5CF6" : "#64748B" }}>Add my own personal platform & offer URL</span>
+            </div>
+            {showCustomOffer && (
+              <div style={{ background: "#1a0a2e", border: "1.5px solid #8B5CF6", borderRadius: 10, padding: 16, marginBottom: 12 }}>
+                <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>My platform name</label>
+                <input value={customPlatform} onChange={e => setCustomPlatform(e.target.value)} placeholder="e.g. My own product, Gumroad, ThriveCart..." style={{ ...inp, border: "1.5px solid #8B5CF6" }} />
+                <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>My personal offer URL</label>
+                <input value={customAffiliateUrl} onChange={e => setCustomAffiliateUrl(e.target.value)} placeholder="https://myproduct.com/offer" style={{ ...inp, border: "1.5px solid #8B5CF6" }} />
+                <p style={{ margin: 0, fontSize: 12, color: "#7C3AED" }}>Alex will find buyers for this offer specifically and Sam will message them with this link.</p>
+              </div>
+            )}
+
+            <p style={{ fontSize: 12, color: "#475569", marginBottom: 16 }}>Alex will find proven buyers on {finalPlatform || "the selected platform"} and Sam will message them with your link.</p>
 
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => setStep(1)} style={{ flex: 1, padding: "11px", background: "#1E293B", border: "1px solid #334155", color: "#94A3B8", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}>← Back</button>
-              <button onClick={() => setStep(3)} disabled={!platform || !niche || !affiliateUrl} style={{ flex: 2, padding: "11px", background: !platform || !niche || !affiliateUrl ? "#334155" : "#10B981", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: !platform || !niche || !affiliateUrl ? "not-allowed" : "pointer" }}>Continue →</button>
+              <button onClick={() => setStep(3)} disabled={(!platform && !customPlatform) || !niche || (!affiliateUrl && !customAffiliateUrl)} style={{ flex: 2, padding: "11px", background: (!platform && !customPlatform) || !niche || (!affiliateUrl && !customAffiliateUrl) ? "#334155" : "#10B981", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>Continue →</button>
             </div>
           </div>
         )}
@@ -248,7 +280,7 @@ export default function Campaigns() {
           <div>
             <p style={{ color: "#94A3B8", marginBottom: 20, fontSize: 15 }}>Name your campaign and launch.</p>
             <label style={{ fontSize: 13, color: "#94A3B8", display: "block", marginBottom: 6 }}>Campaign name (optional)</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder={mode === "business" ? "e.g. Brisbane Dental Q2" : `e.g. ${niche} — ${platform}`} style={inp} />
+            <input value={name} onChange={e => setName(e.target.value)} placeholder={mode === "business" ? "e.g. Brisbane Dental Q2" : `e.g. ${niche} — ${finalPlatform}`} style={inp} />
             <div style={{ ...card, marginBottom: 20 }}>
               <p style={{ margin: "0 0 12px", fontWeight: 700, fontSize: 14, color: "#F8FAFC" }}>Campaign summary</p>
               <div style={{ fontSize: 14, color: "#94A3B8", lineHeight: 2 }}>
@@ -258,9 +290,9 @@ export default function Campaigns() {
                   <div>Location: <span style={{ color: "#F8FAFC" }}>{location2}</span></div>
                 </>}
                 {mode === "affiliate" && <>
-                  <div>Platform: <span style={{ color: "#10B981", fontWeight: 700 }}>{platform}</span></div>
+                  <div>Platform: <span style={{ color: "#10B981", fontWeight: 700 }}>{finalPlatform}</span></div>
                   <div>Niche: <span style={{ color: "#F8FAFC" }}>{niche === "Custom (enter below)" ? customNiche : niche}</span></div>
-                  <div>Offer URL: <span style={{ color: "#10B981" }}>{affiliateUrl}</span></div>
+                  <div>Offer URL: <span style={{ color: "#10B981" }}>{finalAffiliateUrl || affiliateUrl}</span></div>
                 </>}
                 <div>Automation: <span style={{ color: "#10B981" }}>{[autoResearch && "Research", autoWrite && "Write", autoOutreach && "Outreach", autoQualify && "Qualify"].filter(Boolean).join(", ") || "Manual"}</span></div>
               </div>
