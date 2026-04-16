@@ -13,24 +13,56 @@ export const handler = async (event: any) => {
     const isAffiliate = mode === "affiliate";
 
     const userMessage = isAffiliate
-      ? `Find 3 real individual people who are active buyers in the "${niche}" niche on ${platform || "ClickBank/WarriorPlus/JVZoo"}. These must be REAL PEOPLE — not businesses — who have shown they spend money on digital products in this niche. Think: people who leave reviews on WarriorPlus products, members of Facebook buyer groups, YouTubers who review these products, forum members on Warrior Forum, Reddit users in relevant subreddits, blog commenters, Discord members. They can be from anywhere in the world.
+      ? `You are finding buyer leads for an affiliate marketer. Return ONLY a valid JSON array — no intro text, no explanation, no markdown, no code blocks. Just the raw JSON array.
 
-For each person provide:
-- business_name: their username, online handle or full name
-- contact_name: their first name or what to call them
-- email: their contact email if findable, otherwise null
-- location: their country (worldwide — USA, UK, Australia, Canada, India, Philippines etc)
-- industry: "${niche}"
-- notes: exactly WHERE they are active (e.g. "Active reviewer on WarriorPlus with 12 purchases in MMO niche", "Member of ClickBank Elite Buyers Facebook group", "Posts in r/juststart subreddit about affiliate products") and WHY they are a strong buyer lead
+Find 3 individual people who actively buy digital products in the "${niche}" niche on ${platform || "ClickBank, WarriorPlus or JVZoo"}. These are real people worldwide — USA, UK, Australia, Canada, India, Philippines, anywhere.
 
-Return ONLY a JSON array with fields: business_name, contact_name, email, location, industry, notes. No other text.`
-      : `Find 3 real ${industry} businesses in ${location} that could benefit from lead generation services. These should be real businesses with real contact details. For each provide: business_name, contact_name, email, phone, website, industry, location, notes (why they need leads). Return ONLY a JSON array. No other text.`;
+Return exactly this format:
+[
+  {
+    "business_name": "their username or online handle",
+    "contact_name": "their first name",
+    "email": null,
+    "location": "their country",
+    "industry": "${niche}",
+    "notes": "where they are active and why they are a buyer lead"
+  }
+]`
+      : `You are finding business leads. Return ONLY a valid JSON array — no intro text, no explanation, no markdown, no code blocks. Just the raw JSON array.
+
+Find 3 real ${industry} businesses in ${location} that need lead generation services.
+
+Return exactly this format:
+[
+  {
+    "business_name": "Business Name",
+    "contact_name": "Contact Name",
+    "email": "email@example.com",
+    "phone": null,
+    "website": null,
+    "industry": "${industry}",
+    "location": "${location}",
+    "notes": "why they need leads"
+  }
+]`;
 
     const raw = await askClaude(PROMPTS.affiliateResearcher, userMessage);
-    const leads = parseJSON(raw);
+
+    let leads = parseJSON(raw);
 
     if (!leads || !Array.isArray(leads)) {
-      return { statusCode: 200, headers, body: JSON.stringify({ success: false, error: "Could not parse leads from AI" }) };
+      const match = raw.match(/\[[\s\S]*\]/);
+      if (match) {
+        try {
+          leads = JSON.parse(match[0]);
+        } catch {
+          leads = null;
+        }
+      }
+    }
+
+    if (!leads || !Array.isArray(leads) || leads.length === 0) {
+      return { statusCode: 200, headers, body: JSON.stringify({ success: false, error: "Could not parse leads from AI", raw: raw.substring(0, 200) }) };
     }
 
     const inserted = [];
@@ -42,14 +74,14 @@ Return ONLY a JSON array with fields: business_name, contact_name, email, locati
          RETURNING *`,
         [
           campaignId,
-          lead.business_name,
-          lead.contact_name,
+          lead.business_name || lead.businessName || "Unknown",
+          lead.contact_name || lead.contactName || null,
           lead.email || null,
-          null,
-          null,
-          lead.industry,
-          lead.location,
-          lead.notes,
+          lead.phone || null,
+          lead.website || null,
+          lead.industry || niche || industry,
+          lead.location || "Global",
+          lead.notes || null,
           mode || "business"
         ]
       );
