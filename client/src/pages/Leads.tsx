@@ -22,18 +22,16 @@ export default function Leads() {
     fetch(LEADS_URL).then(r => r.json()).then(d => { if (d.leads) setLeads(d.leads); }).finally(() => setLoading(false));
   };
 
-  const industries = ["all", ...Array.from(new Set(leads.map(l => l.industry).filter(Boolean)))];
-
-  const filtered = filter === "all" ? leads : leads.filter(l => l.industry === filter);
-
-  const grouped = filtered.reduce((acc: Record<string, any[]>, l) => {
+  const industries = ["all", ...Array.from(new Set(leads.map((l: any) => l.industry).filter(Boolean)))];
+  const filtered = filter === "all" ? leads : leads.filter((l: any) => l.industry === filter);
+  const grouped = filtered.reduce((acc: Record<string, any[]>, l: any) => {
     const g = l.industry || "Other";
     if (!acc[g]) acc[g] = [];
     acc[g].push(l);
     return acc;
   }, {});
 
-  const counts = STATUS_ORDER.reduce((acc: Record<string, number>, s) => { acc[s] = leads.filter(l => l.status === s).length; return acc; }, {});
+  const counts = STATUS_ORDER.reduce((acc: Record<string, number>, s) => { acc[s] = leads.filter((l: any) => l.status === s).length; return acc; }, {});
 
   const nextStepLabel = (status: string, mode: string) => {
     if (mode === "affiliate") {
@@ -94,11 +92,9 @@ export default function Leads() {
     <div style={{ minHeight: "100vh", background: "#0F172A", display: "flex" }}>
       <div style={{ flex: 1, padding: "2rem", overflowY: "auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <a href="/" style={{ color: "#64748B", fontSize: 14, textDecoration: "none" }}>← Back</a>
+          <a href="/dashboard" style={{ color: "#64748B", fontSize: 14, textDecoration: "none" }}>← Back</a>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#F8FAFC" }}>Leads Pipeline</h1>
         </div>
-
-        {/* Scoreboard */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
           {STATUS_ORDER.map(s => (
             <div key={s} style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: 8, padding: "8px 14px", minWidth: 90, textAlign: "center", flexShrink: 0 }}>
@@ -107,16 +103,13 @@ export default function Leads() {
             </div>
           ))}
         </div>
-
-        {/* Filter tabs */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-          {industries.map(i => (
+          {industries.map((i: string) => (
             <button key={i} onClick={() => setFilter(i)} style={{ padding: "6px 14px", borderRadius: 20, border: "1px solid", borderColor: filter === i ? "#3B82F6" : "#334155", background: filter === i ? "#1D4ED8" : "#1E293B", color: filter === i ? "#fff" : "#94A3B8", fontSize: 13, cursor: "pointer", fontWeight: filter === i ? 600 : 400 }}>
               {i === "all" ? "All leads" : i}
             </button>
           ))}
         </div>
-
         {loading && <p style={{ color: "#475569" }}>Loading leads...</p>}
         {!loading && leads.length === 0 && (
           <div style={{ textAlign: "center", padding: "4rem 2rem", color: "#475569" }}>
@@ -124,12 +117,11 @@ export default function Leads() {
             <a href="/campaigns/new" style={{ color: "#3B82F6", textDecoration: "none" }}>Launch a campaign to get started →</a>
           </div>
         )}
-
         {Object.entries(grouped).map(([industry, groupLeads]) => (
           <div key={industry} style={{ marginBottom: 28 }}>
-            <p style={{ fontSize: 13, color: "#475569", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>{industry} ({groupLeads.length})</p>
+            <p style={{ fontSize: 13, color: "#475569", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>{industry} ({(groupLeads as any[]).length})</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {groupLeads.map((lead: any) => {
+              {(groupLeads as any[]).map((lead: any) => {
                 const nextLabel = nextStepLabel(lead.status, lead.mode || "business");
                 return (
                   <div key={lead.id} style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
@@ -153,8 +145,6 @@ export default function Leads() {
           </div>
         ))}
       </div>
-
-      {/* Side panel */}
       {panel && (
         <div style={{ width: 400, background: "#1E293B", borderLeft: "1px solid #334155", padding: "24px 20px", overflowY: "auto" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -164,7 +154,7 @@ export default function Leads() {
           {panel.loading && <p style={{ color: "#64748B" }}>AI is working...</p>}
           {!panel.loading && panel.step === "qualify_input" && (
             <div>
-              <p style={{ fontSize: 14, color: "#94A3B8", marginBottom: 12 }}>Paste the reply you received from this lead:</p>
+              <p style={{ fontSize: 14, color: "#94A3B8", marginBottom: 12 }}>Paste the reply you received:</p>
               <textarea value={reply} onChange={e => setReply(e.target.value)} rows={6} style={{ width: "100%", padding: 12, background: "#0F172A", border: "1px solid #334155", borderRadius: 8, color: "#F8FAFC", fontSize: 14, boxSizing: "border-box", resize: "vertical" }} />
               <button onClick={submitReply} style={{ marginTop: 12, width: "100%", padding: "10px", background: "#3B82F6", color: "#fff", border: "none", borderRadius: 8, fontWeight: 700, cursor: "pointer" }}>Submit Reply</button>
             </div>
