@@ -8,16 +8,25 @@ export const handler = async (event: any) => {
   if (event.httpMethod === "OPTIONS") return { statusCode: 200, headers, body: "" };
 
   try {
-    const { campaignId, mode, niche, location, industry } = JSON.parse(event.body || "{}");
+    const { campaignId, mode, niche, platform, location, industry } = JSON.parse(event.body || "{}");
 
     const isAffiliate = mode === "affiliate";
-    const systemPrompt = isAffiliate ? PROMPTS.affiliateResearcher : PROMPTS.researcher;
 
     const userMessage = isAffiliate
-      ? `Find 3 targeted buyer leads for the "${niche}" niche. These should be people who have shown buying intent in this niche. For each lead provide: business_name (their name or handle), contact_name, email, location (city/country or "Online"), industry (use the niche name), notes (why they are a good buyer lead). Return as JSON array only with fields: business_name, contact_name, email, phone, website, industry, location, notes.`
-      : `Find 3 real ${industry} businesses in ${location} that could benefit from lead generation services. For each provide: business_name, contact_name, email, phone, website, industry, location, notes (why they need leads). Return as JSON array only.`;
+      ? `Find 3 highly targeted buyer leads for an affiliate marketer promoting a "${niche}" product on ${platform || "ClickBank/WarriorPlus/JVZoo"}.
 
-    const raw = await askClaude(systemPrompt, userMessage);
+These must be REAL buyer personas — people who are actively purchasing products in this niche on affiliate platforms. For each lead describe:
+- business_name: their username, handle, or name as seen in buyer communities
+- contact_name: their first name if known
+- email: a plausible contact email if findable
+- location: their country or region
+- industry: "${niche}"
+- notes: WHERE you found them (e.g. "Active in WarriorPlus buyer Facebook group for MMO offers", "Left reviews on 3 ClickBank products in weight loss niche", "YouTube commenter on JVZoo product review videos") and WHY they are a strong buyer lead
+
+Return as a JSON array only with fields: business_name, contact_name, email, location, industry, notes.`
+      : `Find 3 real ${industry} businesses in ${location} that could benefit from lead generation services. For each provide: business_name, contact_name, email, phone, website, industry, location, notes. Return as JSON array only.`;
+
+    const raw = await askClaude(PROMPTS.affiliateResearcher, userMessage);
     const leads = parseJSON(raw);
 
     if (!leads || !Array.isArray(leads)) {
