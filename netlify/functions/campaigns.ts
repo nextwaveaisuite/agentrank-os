@@ -8,7 +8,7 @@ export const handler = async (event: any) => {
 
   try {
     if (event.httpMethod === "GET") {
-      const result = await pool.query("SELECT * FROM campaigns ORDER BY created_at DESC");
+      const result = await pool.query(`SELECT * FROM campaigns ORDER BY "createdAt" DESC`);
       return { statusCode: 200, headers, body: JSON.stringify({ campaigns: result.rows }) };
     }
 
@@ -44,7 +44,7 @@ export const handler = async (event: any) => {
 
     if (event.httpMethod === "PATCH") {
       const { id, status } = JSON.parse(event.body || "{}");
-      await pool.query("UPDATE campaigns SET status = $1 WHERE id = $2", [status, id]);
+      await pool.query(`UPDATE campaigns SET status = $1 WHERE id = $2`, [status, id]);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 
