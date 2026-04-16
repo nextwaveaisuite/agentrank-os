@@ -1,5 +1,6 @@
-import { pool } from "./lib/db";
+import { Pool } from "pg";
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const headers = { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" };
 
 export const handler = async (event: any) => {
@@ -8,13 +9,39 @@ export const handler = async (event: any) => {
   try {
     if (event.httpMethod === "GET") {
       const clientId = event.queryStringParameters?.clientId;
-      let result;
+      let rows;
       if (clientId) {
-        result = await pool.query("SELECT l.* FROM leads l JOIN client_campaigns cc ON cc.campaign_id = l.campaign_id WHERE cc.client_id = $1 ORDER BY l.created_at DESC", [clientId]);
+        const r = await pool.query(
+          `SELECT l.* FROM leads l
+           JOIN client_campaigns cc ON cc."campaignId" = l."campaignId"
+           WHERE cc."clientId" = $1
+           ORDER BY l."createdAt" DESC`,
+          [clientId]
+        );
+        rows = r.rows;
       } else {
-        result = await pool.query("SELECT * FROM leads ORDER BY created_at DESC");
+        const r = await pool.query(`SELECT * FROM leads ORDER BY "createdAt" DESC`);
+        rows = r.rows;
       }
-      return { statusCode: 200, headers, body: JSON.stringify({ leads: result.rows }) };
+
+      const leads = rows.map((l: any) => ({
+        id: l.id,
+        business_name: l.businessName || l.business_name,
+        contact_name: l.contactName || l.contact_name,
+        email: l.email,
+        phone: l.phone,
+        website: l.website,
+        industry: l.industry,
+        location: l.location,
+        notes: l.notes || l.researchNotes,
+        status: l.status,
+        qualification_score: l.qualificationScore || l.qualification_score,
+        campaign_id: l.campaignId || l.campaign_id,
+        mode: l.mode || "business",
+        created_at: l.createdAt,
+      }));
+
+      return { statusCode: 200, headers, body: JSON.stringify({ leads }) };
     }
 
     if (event.httpMethod === "PATCH") {
@@ -24,7 +51,7 @@ export const handler = async (event: any) => {
       let i = 1;
       if (status !== undefined) { fields.push(`status = $${i++}`); vals.push(status); }
       if (notes !== undefined) { fields.push(`notes = $${i++}`); vals.push(notes); }
-      if (qualification_score !== undefined) { fields.push(`qualification_score = $${i++}`); vals.push(qualification_score); }
+      if (qualification_score !== undefined) { fields.push(`"qualificationScore" = $${i++}`); vals.push(qualification_score); }
       if (fields.length === 0) return { statusCode: 400, headers, body: JSON.stringify({ error: "Nothing to update" }) };
       vals.push(id);
       await pool.query(`UPDATE leads SET ${fields.join(", ")} WHERE id = $${i}`, vals);
