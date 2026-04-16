@@ -1,5 +1,6 @@
-import { pool } from "./lib/db";
+import { Pool } from "pg";
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const headers = { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" };
 
 export const handler = async (event: any) => {
@@ -12,10 +13,31 @@ export const handler = async (event: any) => {
     }
 
     if (event.httpMethod === "POST") {
-      const { name, target_industry, target_location, offer, mode, niche, affiliate_url, auto_research, auto_write, auto_outreach, auto_qualify } = JSON.parse(event.body || "{}");
+      const body = JSON.parse(event.body || "{}");
+      const {
+        name, target_industry, target_location, offer,
+        mode, niche, affiliate_url,
+        auto_research, auto_write, auto_outreach, auto_qualify
+      } = body;
+
       const result = await pool.query(
-        "INSERT INTO campaigns (name, target_industry, target_location, offer, mode, niche, affiliate_url, auto_research, auto_write, auto_outreach, auto_qualify) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *",
-        [name, target_industry, target_location, offer, mode || "business", niche, affiliate_url, auto_research ?? true, auto_write ?? true, auto_outreach ?? true, auto_qualify ?? true]
+        `INSERT INTO campaigns
+          (name, target_industry, target_location, offer, mode, niche, affiliate_url, auto_research, auto_write, auto_outreach, auto_qualify)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+         RETURNING *`,
+        [
+          name,
+          target_industry,
+          target_location,
+          offer,
+          mode || "business",
+          niche || null,
+          affiliate_url || null,
+          auto_research ?? true,
+          auto_write ?? true,
+          auto_outreach ?? true,
+          auto_qualify ?? true
+        ]
       );
       return { statusCode: 200, headers, body: JSON.stringify({ campaign: result.rows[0] }) };
     }
