@@ -16,10 +16,10 @@ export default function Leads() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshMsg, setRefreshMsg] = useState("");
   const [filter, setFilter] = useState("all");
   const [panel, setPanel] = useState<{ lead: any; step: string; content: string; loading: boolean } | null>(null);
   const [reply, setReply] = useState("");
-  const [selectedCampaign, setSelectedCampaign] = useState<any>(null);
   const [showCampaignPicker, setShowCampaignPicker] = useState(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Leads() {
   }, []);
 
   const loadLeads = () => {
-    fetch(LEADS_URL)
+    return fetch(LEADS_URL)
       .then(r => r.json())
       .then(d => { if (d.leads) setLeads(d.leads); })
       .finally(() => setLoading(false));
@@ -37,28 +37,41 @@ export default function Leads() {
   const loadCampaigns = () => {
     fetch(CAMPAIGNS_URL)
       .then(r => r.json())
-      .then(d => { if (d.campaigns) setCampaigns(d.campaigns.filter((c: any) => c.status === "active")); });
+      .then(d => {
+        if (d.campaigns) setCampaigns(d.campaigns.filter((c: any) => c.status === "active"));
+      });
   };
 
   const findMoreLeads = async (campaign: any) => {
     setRefreshing(true);
     setShowCampaignPicker(false);
+    setRefreshMsg(`Alex is searching worldwide for ${campaign.mode === "affiliate" ? "buyer leads" : "business leads"}...`);
     try {
-      await fetch(RESEARCH_URL, {
+      const res = await fetch(RESEARCH_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           campaignId: campaign.id,
           mode: campaign.mode || "business",
-          niche: campaign.niche,
-          platform: campaign.platform || "All Platforms",
+          niche: campaign.niche || campaign.target_industry,
+          platform: campaign.affiliate_url ? "All Platforms" : "All Platforms",
           location: campaign.target_location || "Global",
           industry: campaign.target_industry,
         }),
       });
-      loadLeads();
+      const data = await res.json();
+      if (data.success) {
+        setRefreshMsg(`✅ Alex found ${data.leads?.length || 3} new leads! Loading...`);
+        await new Promise(r => setTimeout(r, 1500));
+        await loadLeads();
+        setRefreshMsg("");
+      } else {
+        setRefreshMsg(`❌ Error: ${data.error || "Could not find leads. Try again."}`);
+        setTimeout(() => setRefreshMsg(""), 4000);
+      }
     } catch {
-      alert("Could not find more leads. Try again.");
+      setRefreshMsg("❌ Could not connect. Try again.");
+      setTimeout(() => setRefreshMsg(""), 4000);
     } finally {
       setRefreshing(false);
     }
@@ -67,7 +80,7 @@ export default function Leads() {
   const industries = ["all", ...Array.from(new Set(leads.map((l: any) => l.industry).filter(Boolean)))];
   const filtered = filter === "all" ? leads : leads.filter((l: any) => l.industry === filter);
   const grouped = filtered.reduce((acc: Record<string, any[]>, l: any) => {
-    const g = l.mode === "affiliate" ? `Affiliate — ${l.industry || "Buyers"}` : (l.industry || "Other");
+    const g = l.mode === "affiliate" ? `Affiliate Buyers — ${l.industry || "General"}` : (l.industry || "Other");
     if (!acc[g]) acc[g] = [];
     acc[g].push(l);
     return acc;
@@ -153,15 +166,20 @@ export default function Leads() {
               {refreshing ? "⏳ Finding leads..." : "🔍 Find More Leads"}
             </button>
             {showCampaignPicker && !refreshing && (
-              <div style={{ position: "absolute", right: 0, top: 44, background: "#1E293B", border: "1px solid #334155", borderRadius: 10, padding: 8, minWidth: 260, zIndex: 50 }}>
-                <p style={{ margin: "0 0 8px", fontSize: 12, color: "#475569", padding: "4px 8px" }}>Choose campaign to find more leads for:</p>
-                {campaigns.length === 0 && <p style={{ fontSize: 13, color: "#475569", padding: "4px 8px" }}>No active campaigns.</p>}
+              <div style={{ position: "absolute", right: 0, top: 44, background: "#1E293B", border: "1px solid #334155", borderRadius: 10, padding: 8, minWidth: 280, zIndex: 50 }}>
+                <p style={{ margin: "0 0 8px", fontSize: 12, color: "#475569", padding: "4px 8px" }}>Choose campaign:</p>
+                {campaigns.length === 0 && <p style={{ fontSize: 13, color: "#475569", padding: "4px 8px" }}>No active campaigns found.</p>}
                 {campaigns.map((c: any) => (
-                  <div key={c.id} onClick={() => findMoreLeads(c)} style={{ padding: "10px 12px", borderRadius: 8, cursor: "pointer", fontSize: 14, color: "#F8FAFC", fontWeight: 600 }}
+                  <div
+                    key={c.id}
+                    onClick={() => findMoreLeads(c)}
+                    style={{ padding: "10px 12px", borderRadius: 8, cursor: "pointer", fontSize: 14, color: "#F8FAFC", fontWeight: 600, display: "flex", alignItems: "center", gap: 8 }}
                     onMouseEnter={e => (e.currentTarget.style.background = "#334155")}
                     onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                   >
-                    <span style={{ fontSize: 11, padding: "2px 6px", borderRadius: 4, background: c.mode === "affiliate" ? "#052e16" : "#1D4ED825", color: c.mode === "affiliate" ? "#10B981" : "#3B82F6", marginRight: 8, fontWeight: 700 }}>{c.mode === "affiliate" ? "AFFILIATE" : "BUSINESS"}</span>
+                    <span style={{ fontSize: 11, padding: "2px 6px", borderRadius: 4, background: c.mode === "affiliate" ? "#052e16" : "#1D3461", color: c.mode === "affiliate" ? "#10B981" : "#3B82F6", fontWeight: 700, flexShrink: 0 }}>
+                      {c.mode === "affiliate" ? "AFFILIATE" : "BUSINESS"}
+                    </span>
                     {c.name}
                   </div>
                 ))}
@@ -169,6 +187,13 @@ export default function Leads() {
             )}
           </div>
         </div>
+
+        {/* Status message */}
+        {refreshMsg && (
+          <div style={{ background: refreshMsg.startsWith("✅") ? "#052e16" : refreshMsg.startsWith("❌") ? "#450a0a" : "#1E293B", border: `1px solid ${refreshMsg.startsWith("✅") ? "#166534" : refreshMsg.startsWith("❌") ? "#991b1b" : "#334155"}`, borderRadius: 10, padding: "14px 18px", marginBottom: 16 }}>
+            <p style={{ margin: 0, fontSize: 14, color: refreshMsg.startsWith("✅") ? "#86efac" : refreshMsg.startsWith("❌") ? "#fca5a5" : "#94A3B8", fontWeight: 600 }}>{refreshMsg}</p>
+          </div>
+        )}
 
         {/* Scoreboard */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20, overflowX: "auto", paddingBottom: 4 }}>
@@ -190,12 +215,6 @@ export default function Leads() {
         </div>
 
         {loading && <p style={{ color: "#475569" }}>Loading leads...</p>}
-        {refreshing && (
-          <div style={{ background: "#1E293B", border: "1px solid #10B981", borderRadius: 10, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 18 }}>⏳</span>
-            <p style={{ margin: 0, fontSize: 14, color: "#10B981", fontWeight: 600 }}>Alex is searching worldwide for new leads...</p>
-          </div>
-        )}
 
         {!loading && leads.length === 0 && (
           <div style={{ textAlign: "center", padding: "4rem 2rem", color: "#475569" }}>
@@ -227,7 +246,7 @@ export default function Leads() {
                       <p style={{ margin: 0, fontSize: 13, color: "#475569" }}>
                         {lead.location}
                         {lead.email ? ` · ${lead.email}` : ""}
-                        {isAffiliate && lead.notes ? ` · ${lead.notes.substring(0, 60)}...` : ""}
+                        {isAffiliate && lead.notes ? ` · ${String(lead.notes).substring(0, 70)}...` : ""}
                       </p>
                     </div>
                     <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, background: STATUS_COLOR[lead.status] + "20", color: STATUS_COLOR[lead.status], fontWeight: 600, whiteSpace: "nowrap" }}>
