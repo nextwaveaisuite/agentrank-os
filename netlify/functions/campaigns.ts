@@ -22,8 +22,8 @@ export const handler = async (event: any) => {
 
       const result = await pool.query(
         `INSERT INTO campaigns
-          (name, target_industry, target_location, offer, mode, niche, affiliate_url, auto_research, auto_write, auto_outreach, auto_qualify)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+          (name, target_industry, target_location, offer, mode, niche, affiliate_url, auto_research, auto_write, auto_outreach, auto_qualify, status)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'active')
          RETURNING *`,
         [
           name,
