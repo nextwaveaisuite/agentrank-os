@@ -33,7 +33,7 @@ export const handler = async (event: any) => {
     const systemPrompt = isAffiliate ? PROMPTS.affiliateWriter : PROMPTS.writer;
 
     const userMessage = isAffiliate
-      ? `Write a short, friendly, conversational message to ${contactName} who is an active buyer in the "${leadIndustry}" niche. 
+      ? `Write a short friendly conversational message to ${contactName} who is an active buyer in the "${leadIndustry}" niche.
 
 What we know about them: ${leadNotes}
 
@@ -45,7 +45,7 @@ Just write the message — no subject line, no labels, no explanation.`
     const content = await askClaude(systemPrompt, userMessage);
 
     await pool.query(
-      `INSERT INTO messages (lead_id, agent, role, content) VALUES ($1, 'sam', 'outreach', $2)`,
+      `INSERT INTO messages ("leadId", agent, role, content) VALUES ($1, 'sam', 'outreach', $2)`,
       [leadId, content]
     );
 
