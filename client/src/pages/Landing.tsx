@@ -32,7 +32,7 @@ export default function Landing() {
           While You Sleep
         </h1>
         <p style={{ fontSize: 19, color: "#64748B", maxWidth: 600, margin: "0 auto 36px", lineHeight: 1.7 }}>
-          6 specialised AI agents running two revenue streams simultaneously — finding business clients at $497–$1,997/mo AND delivering targeted buyer traffic to affiliate offers from just $4/mo.
+          6 specialised AI agents running two revenue streams simultaneously — finding business clients at $497–$1,997/mo AND delivering targeted buyer traffic to affiliate offers on ClickBank, WarriorPlus and JVZoo from just $4/mo.
         </p>
         <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/dashboard"><a style={bp}><Rocket size={18} /> Start Your AI Office</a></Link>
@@ -63,7 +63,6 @@ export default function Landing() {
           <p style={{ color: "#64748B", fontSize: 17 }}>Run both simultaneously or focus on one — your AI team handles everything.</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 24 }}>
-          {/* Business mode */}
           <div style={{ background: "#1E293B", border: "2px solid #3B82F6", borderRadius: 16, padding: 32 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", background: "#1D4ED825", border: "1px solid #3B82F6", borderRadius: 20, fontSize: 12, color: "#3B82F6", fontWeight: 700, marginBottom: 20 }}>BUSINESS MODE</div>
             <h3 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 12px" }}>Find Clients Who Pay You Monthly</h3>
@@ -85,15 +84,14 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Affiliate mode */}
           <div style={{ background: "#1E293B", border: "2px solid #10B981", borderRadius: 16, padding: 32 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "4px 12px", background: "#05291625", border: "1px solid #10B981", borderRadius: 20, fontSize: 12, color: "#10B981", fontWeight: 700, marginBottom: 20 }}>AFFILIATE MODE</div>
             <h3 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 12px" }}>Drive Targeted Buyers to Any Offer</h3>
-            <p style={{ color: "#64748B", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>Alex finds people who are already buying in your niche. Sam sends personalised messages with your affiliate link. Jordan follows up. Casey tracks conversions. You earn commissions on autopilot.</p>
+            <p style={{ color: "#64748B", fontSize: 15, lineHeight: 1.7, marginBottom: 24 }}>Alex finds proven buyers already active on ClickBank, WarriorPlus and JVZoo in your niche. Sam sends personalised messages with your affiliate link. Jordan follows up. You earn commissions on autopilot.</p>
             <div style={{ marginBottom: 24 }}>
-              {["Health, crypto, dating, software & 5 more niches", "Targeted buyer traffic — not tyre kickers", "Fully automated — zero human involvement", "Scale from $4/mo as your conversions grow"].map(f => (
+              {["ClickBank, WarriorPlus, JVZoo, Digistore24", "Real buyer personas — not random traffic", "Fully automated — zero human involvement", "Scale from $4/mo as your commissions grow"].map(f => (
                 <div key={f} style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 10 }}>
-                  <div key={f} style={{ width: 20, height: 20, borderRadius: "50%", background: "#05291625", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#05291625", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 2 }}>
                     <Check size={11} style={{ color: "#10B981" }} />
                   </div>
                   <span style={{ fontSize: 14, color: "#94A3B8" }}>{f}</span>
@@ -118,12 +116,12 @@ export default function Landing() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
             {[
-              { name: "Alex", role: "Researcher", color: "#3B82F6", desc: "Searches the web for targeted leads — local businesses or affiliate buyers depending on your campaign mode. Finds 3 new leads per run, 24/7." },
-              { name: "Sam", role: "Writer", color: "#8B5CF6", desc: "Writes personalised outreach for every lead. Business mode gets professional emails. Affiliate mode gets friendly conversational messages with your offer link." },
-              { name: "Jordan", role: "Outreach", color: "#10B981", desc: "Manages your outreach sequences and follow-ups automatically. Sends at the right time, follows up twice, and reports back what's working." },
+              { name: "Alex", role: "Researcher", color: "#3B82F6", desc: "Searches worldwide for targeted leads — local businesses or affiliate buyers depending on your campaign mode. Finds proven buyers on ClickBank, WarriorPlus and JVZoo. Runs 24/7." },
+              { name: "Sam", role: "Writer", color: "#8B5CF6", desc: "Writes personalised outreach for every lead. Business mode gets professional emails. Affiliate mode gets friendly conversational messages with your offer link. Never generic." },
+              { name: "Jordan", role: "Outreach", color: "#10B981", desc: "Manages your outreach sequences and follow-ups automatically. Sends at the right time, follows up with non-responders, and reports back what's working." },
               { name: "Morgan", role: "Qualifier", color: "#F59E0B", desc: "Reads every reply and scores it 0–100. Tells you who is ready to buy, who needs nurturing, and who to skip — so you never waste time on cold leads." },
               { name: "Riley", role: "Closer", color: "#EF4444", desc: "Generates a detailed pre-call brief before every sales call. Key talking points, likely objections, and the recommended approach for that specific prospect." },
-              { name: "Casey", role: "Tracker", color: "#6366F1", desc: "Delivers your morning briefing every day. Tracks campaign performance, highlights priorities, and keeps your entire operation on course." },
+              { name: "Casey", role: "Tracker", color: "#6366F1", desc: "Delivers your morning briefing every day. Tracks campaign performance across both business and affiliate modes, highlights priorities, and keeps your operation on course." },
             ].map(agent => (
               <div key={agent.name} style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: 12, padding: 22 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
@@ -152,9 +150,9 @@ export default function Landing() {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {[
-            { step: "01", title: "Choose your mode", desc: "Pick Business mode to find high-paying clients, Affiliate mode to drive buyer traffic to your offers, or run both simultaneously.", color: "#3B82F6" },
-            { step: "02", title: "Configure and launch", desc: "Choose your industry or niche, set your target location or offer URL, and toggle your automation settings. Hit launch — Alex starts working immediately.", color: "#8B5CF6" },
-            { step: "03", title: "Collect your results", desc: "Leads appear in your pipeline. Emails get written. Replies get qualified. Call briefs get generated. Casey reports your results every morning.", color: "#10B981" },
+            { step: "01", title: "Choose your mode", desc: "Pick Business mode to find high-paying clients, Affiliate mode to drive buyer traffic to your ClickBank or WarriorPlus offers, or run both simultaneously.", color: "#3B82F6" },
+            { step: "02", title: "Configure and launch", desc: "Choose your industry or niche, select your platform and offer URL, set your automation preferences and hit launch. Alex starts finding leads immediately worldwide.", color: "#8B5CF6" },
+            { step: "03", title: "Collect your results", desc: "Leads appear in your pipeline. Messages get written. Replies get qualified. Call briefs get generated. Casey reports your results every morning. You just close deals and collect commissions.", color: "#10B981" },
           ].map(s => (
             <div key={s.step} style={{ display: "flex", gap: 20, alignItems: "flex-start", background: "#1E293B", border: "1px solid #334155", borderRadius: 12, padding: 24 }}>
               <div style={{ width: 48, height: 48, borderRadius: 10, background: s.color + "20", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 18, color: s.color, flexShrink: 0 }}>{s.step}</div>
@@ -171,7 +169,7 @@ export default function Landing() {
       <section style={{ padding: "4rem 1rem", background: "#0a1628" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
           <h2 style={{ fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 800, margin: "0 0 12px" }}>Pricing That Scales With You</h2>
-          <p style={{ color: "#64748B", fontSize: 16, marginBottom: 40 }}>Start free, pay only when you're ready. Two completely separate pricing tracks.</p>
+          <p style={{ color: "#64748B", fontSize: 16, marginBottom: 40 }}>Start from just $4/month. Two completely separate pricing tracks.</p>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
             {[
               { label: "Affiliate Starter", price: "$4", period: "/mo", sub: "20 buyer leads", color: "#F59E0B" },
@@ -214,6 +212,47 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Referral Program - Coming Soon */}
+      <section style={{ padding: "4rem 1rem", maxWidth: 900, margin: "0 auto" }}>
+        <div style={{ background: "linear-gradient(135deg, #1E293B, #0F172A)", border: "1px solid #334155", borderRadius: 20, padding: "3rem 2rem", textAlign: "center", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "radial-gradient(circle at 50% 0%, #F59E0B15, transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 16px", background: "#1E293B", borderRadius: 999, border: "1px solid #F59E0B", fontSize: 13, color: "#F59E0B", marginBottom: 20, fontWeight: 700 }}>
+            🔥 Coming Soon
+          </div>
+          <h2 style={{ fontSize: "clamp(22px, 4vw, 36px)", fontWeight: 900, margin: "0 0 16px", color: "#F8FAFC" }}>
+            Earn While You Sleep —<br />
+            <span style={{ background: "linear-gradient(135deg, #F59E0B, #EF4444)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>The AgentRank Referral Program</span>
+          </h2>
+          <p style={{ fontSize: 17, color: "#64748B", maxWidth: 580, margin: "0 auto 32px", lineHeight: 1.7 }}>
+            Every AgentRank OS member will get their own referral link. Share it anywhere. Earn 40% lifetime recurring commissions every month your referrals stay subscribed. Your AI team finds leads — your referral link earns while you sleep.
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, maxWidth: 700, margin: "0 auto 32px" }}>
+            {[
+              { icon: "🔗", title: "Your unique link", desc: "Share on social media, email, forums, YouTube or anywhere online" },
+              { icon: "💰", title: "40% commission", desc: "Earn 40% of every payment your referrals make month after month" },
+              { icon: "♾️", title: "Lifetime recurring", desc: "Earn every month they stay subscribed — not just the first payment" },
+              { icon: "📊", title: "Live dashboard", desc: "Track your clicks, signups and earnings in real time" },
+            ].map(f => (
+              <div key={f.title} style={{ background: "#0F172A", border: "1px solid #1E293B", borderRadius: 12, padding: "20px 16px" }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>{f.icon}</div>
+                <p style={{ margin: "0 0 6px", fontWeight: 700, fontSize: 14, color: "#F8FAFC" }}>{f.title}</p>
+                <p style={{ margin: 0, fontSize: 13, color: "#475569", lineHeight: 1.5 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "#0F172A", border: "1px solid #334155", borderRadius: 12, padding: "16px 24px", display: "inline-block", marginBottom: 24 }}>
+            <p style={{ margin: 0, fontSize: 14, color: "#64748B" }}>Example: 100 referrals on Affiliate Pro ($19/mo)</p>
+            <p style={{ margin: "4px 0 0", fontSize: 24, fontWeight: 800, color: "#10B981" }}>$760/month passive income</p>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: "#334155" }}>every single month · forever</p>
+          </div>
+          <br />
+          <button disabled style={{ padding: "14px 32px", background: "linear-gradient(135deg, #F59E0B, #EF4444)", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 16, cursor: "not-allowed", opacity: 0.8 }}>
+            🔥 Referral Program — Coming Soon
+          </button>
+          <p style={{ marginTop: 12, fontSize: 13, color: "#334155" }}>Sign up above to be first in line when it launches</p>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section style={{ padding: "5rem 1rem", background: "linear-gradient(135deg, #0F172A, #1E293B)", textAlign: "center" }}>
         <div style={{ maxWidth: 600, margin: "0 auto" }}>
@@ -221,7 +260,7 @@ export default function Landing() {
           <p style={{ color: "#64748B", fontSize: 17, marginBottom: 36, lineHeight: 1.7 }}>Launch your first campaign in under 5 minutes. Business clients, affiliate buyers, or both — your AI team starts working the moment you press go.</p>
           <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
             <Link href="/dashboard"><a style={{ ...bp, fontSize: 16, padding: "16px 32px" }}><Rocket size={18} /> Open Your AI Office</a></Link>
-            <Link href="/pricing"><a style={{ ...bs, fontSize: 15 }}>View Pricing</a></Link>
+            <Link href="/pricing"><a style={bs}>View Pricing</a></Link>
           </div>
           <p style={{ marginTop: 20, fontSize: 13, color: "#334155" }}>Free to explore · No credit card required to start</p>
         </div>
