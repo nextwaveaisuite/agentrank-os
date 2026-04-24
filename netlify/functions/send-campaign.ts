@@ -15,12 +15,7 @@ async function sendEmail(to: string, subject: string, html: string): Promise<str
         "Content-Type": "application/json",
         "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({
-        from: FROM_EMAIL,
-        to,
-        subject,
-        html,
-      }),
+      body: JSON.stringify({ from: FROM_EMAIL, to, subject, html }),
     });
     const data = await res.json();
     return data.id || null;
@@ -48,34 +43,36 @@ export const handler = async (event: any) => {
       return { statusCode: 200, headers, body: JSON.stringify({ success: true, sent: 0, message: "No pending leads" }) };
     }
 
+    // Write ONE template email — then personalise with first name
+    const template = await askClaude(
+      PROMPTS.affiliateWriter,
+      `Write a short friendly email template for people interested in "${niche}".
+
+Use {{firstName}} as a placeholder for their first name.
+
+The email should feel personal and helpful, not salesy. Keep it under 100 words. Include this link naturally: ${affiliateUrl || "[affiliate link]"}
+
+Return in exactly this format with no extra text:
+SUBJECT: [subject line]
+BODY: [email body using {{firstName}} for personalisation]`
+    );
+
+    let subject = "Quick question for you";
+    let bodyTemplate = template;
+
+    if (template.includes("SUBJECT:") && template.includes("BODY:")) {
+      const subjectMatch = template.match(/SUBJECT:\s*(.+)/);
+      const bodyMatch = template.match(/BODY:\s*([\s\S]+)/);
+      if (subjectMatch) subject = subjectMatch[1].trim();
+      if (bodyMatch) bodyTemplate = bodyMatch[1].trim();
+    }
+
     let sent = 0;
     for (const lead of pending.rows) {
       const firstName = lead.first_name || "Friend";
+      const personalised = bodyTemplate.replace(/{{firstName}}/g, firstName);
+      const htmlBody = personalised.replace(/\n/g, "<br>");
 
-      const message = await askClaude(
-        PROMPTS.affiliateWriter,
-        `Write a short friendly email to ${firstName} who is interested in making money online.
-         
-They are from ${lead.state || "your area"}.
-         
-Write a personalised subject line and email body. The email should feel like it's from a real person, not a marketer. Keep it under 100 words. Include this link naturally: ${affiliateUrl || "[affiliate link]"}
-
-Return in this exact format:
-SUBJECT: [subject line here]
-BODY: [email body here]`
-      );
-
-      let subject = campaign.rows[0].subject || "Quick question for you";
-      let body = message;
-
-      if (message.includes("SUBJECT:") && message.includes("BODY:")) {
-        const subjectMatch = message.match(/SUBJECT:\s*(.+)/);
-        const bodyMatch = message.match(/BODY:\s*([\s\S]+)/);
-        if (subjectMatch) subject = subjectMatch[1].trim();
-        if (bodyMatch) body = bodyMatch[1].trim();
-      }
-
-      const htmlBody = body.replace(/\n/g, "<br>");
       const emailId = await sendEmail(lead.email, subject, htmlBody);
 
       if (emailId) {
@@ -90,7 +87,7 @@ BODY: [email body here]`
         sent++;
       }
 
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 100));
     }
 
     return { statusCode: 200, headers, body: JSON.stringify({ success: true, sent }) };
