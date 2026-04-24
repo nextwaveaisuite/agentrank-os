@@ -21,6 +21,7 @@ export default function Leads() {
   const [panel, setPanel] = useState<{ lead: any; step: string; content: string; loading: boolean } | null>(null);
   const [reply, setReply] = useState("");
   const [showCampaignPicker, setShowCampaignPicker] = useState(false);
+  const [resetting, setResetting] = useState<number | null>(null);
 
   useEffect(() => {
     loadLeads();
@@ -42,6 +43,18 @@ export default function Leads() {
       });
   };
 
+  const resetLead = async (lead: any) => {
+    if (!confirm(`Reset "${lead.contact_name || lead.business_name}" back to New? This will clear their current status.`)) return;
+    setResetting(lead.id);
+    await fetch(LEADS_URL, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: lead.id, status: "new", notes: null }),
+    });
+    await loadLeads();
+    setResetting(null);
+  };
+
   const findMoreLeads = async (campaign: any) => {
     setRefreshing(true);
     setShowCampaignPicker(false);
@@ -54,7 +67,7 @@ export default function Leads() {
           campaignId: campaign.id,
           mode: campaign.mode || "business",
           niche: campaign.niche || campaign.target_industry,
-          platform: campaign.affiliate_url ? "All Platforms" : "All Platforms",
+          platform: "All Platforms",
           location: campaign.target_location || "Global",
           industry: campaign.target_industry,
         }),
@@ -232,9 +245,10 @@ export default function Leads() {
               {(groupLeads as any[]).map((lead: any) => {
                 const nextLabel = nextStepLabel(lead.status, lead.mode || "business");
                 const isAffiliate = lead.mode === "affiliate";
+                const isResetting = resetting === lead.id;
                 return (
-                  <div key={lead.id} style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ flex: 1 }}>
+                  <div key={lead.id} style={{ background: "#1E293B", border: "1px solid #334155", borderRadius: 10, padding: "14px 18px", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 160 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color: "#F8FAFC" }}>
                           {isAffiliate ? (lead.contact_name || lead.business_name) : lead.business_name}
@@ -246,7 +260,7 @@ export default function Leads() {
                       <p style={{ margin: 0, fontSize: 13, color: "#475569" }}>
                         {lead.location}
                         {lead.email ? ` · ${lead.email}` : ""}
-                        {isAffiliate && lead.notes ? ` · ${String(lead.notes).substring(0, 70)}...` : ""}
+                        {isAffiliate && lead.notes ? ` · ${String(lead.notes).substring(0, 60)}...` : ""}
                       </p>
                     </div>
                     <span style={{ fontSize: 12, padding: "4px 10px", borderRadius: 6, background: STATUS_COLOR[lead.status] + "20", color: STATUS_COLOR[lead.status], fontWeight: 600, whiteSpace: "nowrap" }}>
@@ -257,6 +271,14 @@ export default function Leads() {
                         {nextLabel} →
                       </button>
                     )}
+                    <button
+                      onClick={() => resetLead(lead)}
+                      disabled={isResetting || lead.status === "new"}
+                      title="Reset this lead back to New"
+                      style={{ padding: "7px 12px", background: "transparent", border: "1px solid #334155", borderRadius: 7, fontSize: 12, color: lead.status === "new" ? "#334155" : "#F59E0B", cursor: lead.status === "new" ? "not-allowed" : "pointer", whiteSpace: "nowrap", fontWeight: 600 }}
+                    >
+                      {isResetting ? "..." : "↺ Reset"}
+                    </button>
                   </div>
                 );
               })}
