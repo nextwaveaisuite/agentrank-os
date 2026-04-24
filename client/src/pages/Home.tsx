@@ -137,7 +137,7 @@ export default function Home() {
           <Zap size={12} /> AI-Powered Lead Generation Office
         </div>
         <h1 style={{ fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 800, margin: "0 0 16px", color: "#F8FAFC" }}>Your AI team works<br />while you sleep</h1>
-        <p style={{ fontSize: 17, color: "#64748B", maxWidth: 520, margin: "0 auto 32px", lineHeight: 1.7 }}>6 specialised AI agents finding leads for your business clients AND driving targeted buyer traffic to affiliate offers — fully automated.</p>
+        <p style={{ fontSize: 17, color: "#64748B", maxWidth: 520, margin: "0 auto 32px", lineHeight: 1.7 }}>6 specialised AI agents running two revenue streams — business clients AND affiliate buyer traffic — fully automated worldwide.</p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
           <Link href="/campaigns/new"><a style={{ ...bp, fontSize: 15, padding: "12px 24px" }}><Rocket size={16} /> Launch campaign</a></Link>
           <Link href="/pricing"><a style={{ ...bs, fontSize: 15, padding: "12px 24px" }}><Users size={16} /> View pricing</a></Link>
@@ -191,7 +191,8 @@ export default function Home() {
           <Link href="/email-approval"><a style={bs}><Mail size={14} /> Email approval</a></Link>
           <Link href="/crm"><a style={bs}><FolderOpen size={14} /> CRM & Archives</a></Link>
           <Link href="/page-builder"><a style={bs}><Layout size={14} /> Page Builder</a></Link>
-          <Link href="/pricing"><a style={bs}><Zap size={14} /> Pricing</a></Link>
+          <Link href="/lead-importer"><a style={bs}><Zap size={14} /> Lead Importer</a></Link>
+          <Link href="/pricing"><a style={bs}><TrendingUp size={14} /> Pricing</a></Link>
         </div>
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
