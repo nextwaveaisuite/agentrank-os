@@ -44,10 +44,18 @@ Just write the message — no subject line, no labels, no explanation.`
 
     const content = await askClaude(systemPrompt, userMessage);
 
-    await pool.query(
-      `INSERT INTO messages ("leadId", agent, role, content) VALUES ($1, 'sam', 'outreach', $2)`,
-      [leadId, content]
-    );
+    if (!content || content.trim() === "") {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: "AI did not generate a message" }) };
+    }
+
+    try {
+      await pool.query(
+        `INSERT INTO messages ("leadId", agent, role, content) VALUES ($1, 'sam', 'outreach', $2)`,
+        [leadId, content]
+      );
+    } catch (msgErr: any) {
+      console.log("Message save error:", msgErr.message);
+    }
 
     return { statusCode: 200, headers, body: JSON.stringify({ success: true, email: content, message: content }) };
   } catch (err: any) {
