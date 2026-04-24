@@ -9,6 +9,7 @@ import PageBuilder from "./pages/PageBuilder";
 import ClientLogin from "./pages/ClientLogin";
 import Pricing from "./pages/Pricing";
 import ClientPortal from "./pages/ClientPortal";
+import LeadImporter from "./pages/LeadImporter";
 import NotFound from "./pages/NotFound";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
       <Route path="/client-login" component={ClientLogin} />
       <Route path="/pricing" component={Pricing} />
       <Route path="/portal" component={ClientPortal} />
+      <Route path="/lead-importer" component={LeadImporter} />
       <Route component={NotFound} />
     </Switch>
   );
