@@ -1,10 +1,11 @@
-import { pool } from "./lib/db";
+import { Pool } from "pg";
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const headers = { "Content-Type": "application/json" };
 
 const PLAN_LIMITS: Record<string, number> = {
-  b_starter: 15, b_growth: 40, b_agency: 999,
   a_starter: 20, a_basic: 75, a_pro: 200, a_elite: 9999,
+  b_starter: 15, b_growth: 40, b_agency: 9999,
 };
 
 export const handler = async (event: any) => {
@@ -27,20 +28,37 @@ export const handler = async (event: any) => {
     if (stripeEvent.type === "checkout.session.completed") {
       const session = stripeEvent.data.object as any;
       const clientId = session.metadata?.clientId;
-      const plan = session.metadata?.plan || "b_starter";
-      const limit = PLAN_LIMITS[plan] || 15;
+      const plan = session.metadata?.plan || "a_starter";
+      const limit = PLAN_LIMITS[plan] || 20;
       await pool.query(
-        "UPDATE clients SET plan = $1, subscription_status = $2, stripe_subscription_id = $3, leads_limit = $4 WHERE id = $5",
-        [plan, "active", session.subscription, limit, clientId]
+        `UPDATE clients SET
+          plan = $1,
+          subscription_status = 'active',
+          stripe_subscription_id = $2,
+          leads_limit = $3,
+          leads_used = 0,
+          billing_cycle_start = NOW()
+         WHERE id = $4`,
+        [plan, session.subscription, limit, clientId]
       );
     }
 
     if (stripeEvent.type === "customer.subscription.deleted") {
       const sub = stripeEvent.data.object as any;
       await pool.query(
-        "UPDATE clients SET subscription_status = $1, plan = $2, leads_limit = $3 WHERE stripe_subscription_id = $4",
-        ["inactive", "none", 0, sub.id]
+        "UPDATE clients SET subscription_status = 'inactive', plan = 'none', leads_limit = 0 WHERE stripe_subscription_id = $1",
+        [sub.id]
       );
+    }
+
+    if (stripeEvent.type === "invoice.payment_succeeded") {
+      const invoice = stripeEvent.data.object as any;
+      if (invoice.billing_reason === "subscription_cycle") {
+        await pool.query(
+          "UPDATE clients SET leads_used = 0, billing_cycle_start = NOW() WHERE stripe_subscription_id = $1",
+          [invoice.subscription]
+        );
+      }
     }
 
     return { statusCode: 200, headers, body: JSON.stringify({ received: true }) };
